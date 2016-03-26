@@ -1,0 +1,29 @@
+<html>
+  <head>
+  </head>
+  <body>
+    <h1>Example form</h1>
+
+    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+    <form action="{% url 'index' %}" method="post">
+      {% csrf_token %}
+      {% for color in colors %}
+      <input type="checkbox" name="choice" id="choice{{ forloop.counter }}" value="{{ color.id }}" />
+      <label for="choice{{ forloop.counter }}">{{ color.name }}</label><br />
+      {% endfor %}
+      <input type="submit" value="Choose" />
+    </form>
+    
+    <h1>Form Data</h1>
+
+    <p>
+      Form data: {{data}}
+    </p>
+
+    <p>
+      Choices (using getlist): {{choices}}
+    </p>
+    
+  </body>
+</html>
