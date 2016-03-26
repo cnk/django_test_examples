@@ -4,6 +4,10 @@
   <body>
     <h1>Example form</h1>
 
+    <p>
+      Pick your favorite color:
+    </p>
+
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
     <form action="{% url 'index' %}" method="post">
