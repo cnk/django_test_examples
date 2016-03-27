@@ -16,4 +16,3 @@ class Color(models.Model):
 class FavoriteColor(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     color = models.ForeignKey(Color, on_delete=models.CASCADE)
-
