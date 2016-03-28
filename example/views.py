@@ -20,9 +20,33 @@ def index(request):
 
 # Serializers define the API representation.
 class UserSerializer(serializers.HyperlinkedModelSerializer):
+    favorite_colors = serializers.SerializerMethodField()
+    
     class Meta:
         model = User
-        fields = ('url', 'username', 'email', 'is_staff')
+        fields = ('url', 'username', 'email', 'is_staff', 'favorite_colors')
+
+    def get_favorite_colors(self, instance):
+        return FavoriteColor.objects.filter(user=instance).values_list('color__name', flat=True)
+        
+    def validate(self, data):
+        data['color_ids'] = self.initial_data.getlist('choice', None)
+        return data
+        
+    def update(self, instance, validated_data):
+        current_favs = FavoriteColor.objects.filter(user=instance).values_list('color_id', flat=True)
+        # deletes
+        if current_favs:
+            for id in current_favs:
+                if id not in validated_data['color_ids']:
+                    FavoriteColor.objects.filter(user=instance, color_id=id).delete()
+        # adds
+        for id in validated_data['color_ids']:
+            if id not in current_favs:
+                rec = FavoriteColor(user=instance, color_id=id)
+                rec.full_clean()
+                rec.save()
+        return instance
 
 
 # ViewSets define the view behavior.
@@ -30,6 +54,16 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+    @list_route(methods=['post', 'put'])
+    def record_favorite_colors(self, request):
+        user = get_object_or_404(User, username=request.data['username'])
+        serializer = UserSerializer(user, data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
                                         
 # Serializers define the API representation.
 class ColorSerializer(serializers.HyperlinkedModelSerializer):
@@ -48,23 +82,6 @@ class FavoriteColorSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = FavoriteColor
         fields = ('url', 'color', 'user')
-        read_only_fields = ('url', 'color', 'user')
-
-    def validate(self, data):
-        print('In validate. Initial data:')
-        print(self.initial_data)
-        data['user'] = get_object_or_404(User, username=self.initial_data['username'])
-        data['color_ids'] = self.initial_data.getlist('choice')
-        return data
-        
-    def create(self, validated_data):
-        new_records = []
-        for id in validated_data['color_ids']:
-            rec = FavoriteColor(user=validated_data['user'], color_id=id)
-            rec.full_clean()
-            rec.save()
-            new_records.append(rec)
-        return new_records
             
 # ViewSets define the view behavior.
 class FavoriteColorViewSet(viewsets.ModelViewSet):
@@ -80,14 +97,3 @@ class FavoriteColorViewSet(viewsets.ModelViewSet):
             record.full_clean()
             record.save()
         return Response(status=status.HTTP_201_CREATED)
-
-    @list_route(methods=['post', 'put'])
-    def record_favorites(self, request):
-        print('in record_favorites')
-        serializer = FavoriteColorSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
-            serializer.save()
-            return Response(status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    

@@ -112,9 +112,11 @@ class ApiWSaveMethodTests(APITestCase):
     def test_create_multiple_favorite_color_records(self):
         '''This test hints an endpoint that uses a custom serializer save method.'''
         self.assertEqual(len(FavoriteColor.objects.all()), 0)
-        response = self.client.post('/api/favs/record_favorites/', data={'username': self.user.username,
-                                                                         'choice': [self.colors[2].id,
-                                                                                    self.colors[0].id]})
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(len(FavoriteColor.objects.all()), 2)
-
+        before = self.client.get('/api/users/{}/'.format(self.user.id))
+        self.assertCountEqual(before.data['favorite_colors'], [])
+                                    
+        response = self.client.post('/api/users/record_favorite_colors/',
+                                    data={'username': self.user.username,
+                                          'choice': [self.colors[2].id, self.colors[0].id]})
+        self.assertEqual(response.status_code, 200)
+        self.assertCountEqual(response.data['favorite_colors'], ['yellow', 'blue'])
