@@ -10,8 +10,9 @@
 
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-    <form action="{% url 'index' %}" method="post">
+    <form action="{% url 'favoritecolor-add-multiple' %}" method="post">
       {% csrf_token %}
+      <input type='hidden' name='username' value='admin' />
       {% for color in colors %}
       <input type="checkbox" name="choice" id="choice{{ forloop.counter }}" value="{{ color.id }}" />
       <label for="choice{{ forloop.counter }}">{{ color.name }}</label><br />
