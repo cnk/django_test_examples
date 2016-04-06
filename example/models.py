@@ -10,9 +10,8 @@ class Color(models.Model):
 
     def __str__(self):
         return self.name
-    
-    
+
 
 class FavoriteColor(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='favorite_colors', on_delete=models.CASCADE)
     color = models.ForeignKey(Color, on_delete=models.CASCADE)

@@ -29,5 +29,6 @@ router.register(r'favs', views.FavoriteColorViewSet)
 urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^api/', include(router.urls)),
+    url(r'^update_favs/', views.update_favorite_colors, name='update_favorite_colors'),
     url(r'^admin/', admin.site.urls),
 ]
