@@ -10,7 +10,7 @@
 
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-    <form action="{% url 'favoritecolor-add-multiple' %}" method="post">
+    <form action="{% url 'index' %}" method="post">
       {% csrf_token %}
       <input type='hidden' name='username' value='admin' />
       {% for color in colors %}
@@ -19,7 +19,7 @@
       {% endfor %}
       <input type="submit" value="Choose" />
     </form>
-    
+
     <h1>Form Data</h1>
 
     <p>
@@ -29,6 +29,6 @@
     <p>
       Choices (using getlist): {{choices}}
     </p>
-    
+
   </body>
 </html>

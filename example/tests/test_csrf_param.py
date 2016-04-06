@@ -113,6 +113,11 @@ class DjangoTests(TestCase):
         request.META['CSRF_COOKIE_USED'] = True
         return token
 
+    def test_works_if_we_dont_enforce_csrf_checks(self):
+        client = Client(enforce_csrf_checks=False)
+        response = client.post('/', {'choice': 2})
+        self.assertEqual(response.status_code, 200)
+
     def test_enforce_csrf_works_with_token_in_cookie(self):
         '''
         I can't figure out how to set up a request with a proper CSRF token.
@@ -159,8 +164,9 @@ class DjangoTests(TestCase):
             self.create_color(name)
 
         token = csrf._get_new_csrf_key()
+        # client = Client(enforce_csrf_checks=True, HTTP_X_CSRFTOKEN=token, HTTP_REFERER='http://test.example.com/')
         client = Client(enforce_csrf_checks=True, HTTP_X_CSRFTOKEN=token)
-        pprint(client.__dict__)
+        # pprint(client.__dict__)
         response = client.post('/', {'username': user.username, 'choice': 2, 'csrfmiddlewaretoken': token})
-        pprint(response.__dict__)
+        # pprint(response.__dict__)
         self.assertEqual(response.status_code, 200)

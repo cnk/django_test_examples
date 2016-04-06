@@ -26,18 +26,11 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'username', 'first_name', 'last_name', 'email', 'is_staff', 'favorite_colors')
         read_only_fields = ('username', 'is_staff')
 
-    def get_favorite_colors(self, instance):
-        return FavoriteColor.objects.filter(user=instance).values_list('color__name', flat=True)
-
     def validate(self, data):
         data['color_ids'] = self.initial_data.getlist('choice', None)
         return data
 
     def update(self, instance, validated_data):
-        print('initial data is')
-        print(self.initial_data)
-        print('validated_data is')
-        print(validated_data)
         current_favs = FavoriteColor.objects.filter(user=instance).values_list('color_id', flat=True)
         # deletes
         if current_favs:

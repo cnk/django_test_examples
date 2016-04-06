@@ -1,0 +1,5 @@
+Django==1.8.12
+django-extensions==1.6.1
+djangorestframework==3.3.3
+Markdown==2.6.6
+six==1.10.0

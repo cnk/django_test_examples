@@ -41,8 +41,3 @@ class ExampleTestsWithDjangoClient(TestCase):
         response = client.post('/', {'choice': 2, 'choice': 3})
         self.assertEqual(response.status_code, 200)
         self.assertListEqual(response.context['choices'], ['3'])
-
-    def test_enforce_csrf_fails_if_no_token(self):
-        client = Client(enforce_csrf_checks=True)
-        response = client.post('/', {'choice': 2})
-        self.assertEqual(response.status_code, 403)
